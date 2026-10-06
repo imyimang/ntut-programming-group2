@@ -1,1 +1,1 @@
-# NTUT Computer Programming Team 2
+# NTUT Computer Programming Group 2
