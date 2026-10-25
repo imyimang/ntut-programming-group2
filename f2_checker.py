@@ -13,7 +13,7 @@ def normalize_slots(slots: list) -> set:
     return {(s[0], str(s[1]).lower()) for s in slots if isinstance(s, (tuple, list)) and len(s) == 2}
 
 def find_intersections(slots_a: list, slots_b: list) -> list:
-    """計算兩組時段交集（衝堂），並依 F3 的星期與節次排序[cite: 10, 12]"""
+    """計算兩組時段交集（衝堂），並依 F3 的星期與節次排序"""
     set_a = normalize_slots(slots_a)
     set_b = normalize_slots(slots_b)
     overlap = list(set_a & set_b)
