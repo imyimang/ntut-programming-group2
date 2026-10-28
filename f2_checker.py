@@ -1,8 +1,6 @@
 # f2_checker.py
 from f1_manager import get_remaining_seats
-from f3_schedule import PERIODS, DAYS  
-
-DAY_NAMES = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "日"}
+from f3_schedule import PERIODS
 
 def get_slot_sort_key(slot: tuple) -> tuple:
     day, period = slot[0], str(slot[1]).lower()
