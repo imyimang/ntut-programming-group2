@@ -175,29 +175,83 @@ def find_idle_runs_across_days(matrix: list[list[str | None]], days: list,
     return result
 
 
+# def get_schedule_statistics(student_id: str,
+#                             matrix: list[list[str | None]],
+#                             students_db: dict, courses_db: dict) -> dict:
+
+#     check_matrix(matrix)
+#     if student_id not in students_db:
+#         raise ValueError("Student not found: " + repr(student_id))
+
+#     daily_counts = []
+#     for row in matrix:
+#         count = 0
+#         for cell in row:
+#             if cell is not None:
+#                 count += 1
+#         daily_counts.append(count)
+
+#     total_credits = 0
+#     for course_id in students_db[student_id].get("courses", []):
+#         if course_id not in courses_db:
+#             raise ValueError("Course not found: " + repr(course_id))
+#         total_credits += courses_db[course_id].get("credit", 0)
+
+#     idle_slots = 7 * 12 - sum(daily_counts)
+
+#     return {
+#         "daily_class_counts": daily_counts,
+#         "total_credits": total_credits,
+#         "total_idle_slots": idle_slots,
+#     }
+
+
+# def short_label(cell: str | None) -> str:
+#     if cell is None:
+#         return ""
+#     ids = []
+#     for part in cell.split(CONFLICT_SEPARATOR):
+#         ids.append(part.split(" (")[0])
+#     text = "/".join(ids)
+#     if len(text) > CELL_WIDTH:
+#         text = text[:CELL_WIDTH - 1] + "~"
+#     return text
+def has_course(cell: str | None, courses_db: dict) -> bool:
+    if cell is None:
+        return False
+    for part in cell.split(CONFLICT_SEPARATOR):
+        item_id = part.split(" (")[0]
+        if item_id in courses_db:
+            return True
+    return False
+
+
 def get_schedule_statistics(student_id: str,
                             matrix: list[list[str | None]],
                             students_db: dict, courses_db: dict) -> dict:
-
     check_matrix(matrix)
     if student_id not in students_db:
         raise ValueError("Student not found: " + repr(student_id))
 
     daily_counts = []
+    idle_slots = 0
+
     for row in matrix:
-        count = 0
-        for cell in row:
-            if cell is not None:
-                count += 1
-        daily_counts.append(count)
+        # Get indices of all slots that contain actual COURSES (excluding activities)
+        course_cols = [i for i, cell in enumerate(row) if has_course(cell, courses_db)]
+        daily_counts.append(len(course_cols))
+
+        # Idle slots are empty gaps strictly between the day's first and last class
+        if course_cols:
+            for i in range(course_cols[0], course_cols[-1] + 1):
+                if row[i] is None:
+                    idle_slots += 1
 
     total_credits = 0
     for course_id in students_db[student_id].get("courses", []):
         if course_id not in courses_db:
             raise ValueError("Course not found: " + repr(course_id))
         total_credits += courses_db[course_id].get("credit", 0)
-
-    idle_slots = 7 * 12 - sum(daily_counts)
 
     return {
         "daily_class_counts": daily_counts,
@@ -208,7 +262,7 @@ def get_schedule_statistics(student_id: str,
 
 def short_label(cell: str | None) -> str:
     if cell is None:
-        return ""
+        return "-"
     ids = []
     for part in cell.split(CONFLICT_SEPARATOR):
         ids.append(part.split(" (")[0])
@@ -216,7 +270,6 @@ def short_label(cell: str | None) -> str:
     if len(text) > CELL_WIDTH:
         text = text[:CELL_WIDTH - 1] + "~"
     return text
-
 
 def make_table_line(cells: list) -> str:
     line = "|"
