@@ -344,3 +344,9 @@ def test_render_long_id_truncated_keeps_alignment():
 def test_render_malformed_matrix():
     with pytest.raises(ValueError):
         render_cli_schedule([[None] * 12])
+
+def test_render_empty_cells_show_dash():
+    text = render_cli_schedule(make_matrix("S002"))
+    rows = [ln for ln in text.splitlines() if ln.startswith("|")][1:]
+    cells = [c.strip() for r in rows for c in r.split("|")[2:-1]]
+    assert cells == ["-"] * 84
