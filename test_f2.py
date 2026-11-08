@@ -319,7 +319,7 @@ def test_bug_f2_02_consecutive_periods_merged():
 
     def setup(s, c, a, e):
         c["CS101"]["timeSlot"] = [(2, "3"), (2, "4")]
-                c["CS201"] = make_course("CS201", slots=[(2, "3"), (2, "4")])
+        c["CS201"] = make_course("CS201", slots=[(2, "3"), (2, "4")])
     result = run(cid="CS201", setup=setup)
     assert types_of(result).count("COURSE_CONFLICT") == 1
     assert "星期二第 3、4 節" in result["conflicts"][0]["description"]
