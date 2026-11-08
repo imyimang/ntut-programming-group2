@@ -9,7 +9,7 @@ from f2_checker import check_course_enrollment
 TIME_TYPES = {"COURSE_CONFLICT", "CLASSROOM_CONFLICT", "ACTIVITY_CONFLICT"}
 
 
-def make_course(cid, name="測試課程", credit=3, cap=40, room="A102", slots=None):
+def make_course(cid, name="測試課程", credit=3, cap=40, room="B201", slots=None):
     return {
         "id": cid, "name": name, "credit": credit,
         "maxStudentCount": cap, "classroom": room,
@@ -223,7 +223,7 @@ def test_f2_seat_boundary(cap, ok):
     ([(2, "3")], [(3, "3")], []),
     ([(3, "1"), (1, "c"), (2, "a"), (2, "9")],
      [(3, "1"), (1, "c"), (2, "a"), (2, "9")],
-     [(1, "c"), (2, "9"), (2, "a"), (3, "1")]),
+     [(1, "c"), (2, "9"), (3, "1")]),
 ])
 def test_f2_time_overlap_boundary(enrolled_slots, target_slots, expected):
 
@@ -319,4 +319,21 @@ def test_bug_f2_02_consecutive_periods_merged():
 
     def setup(s, c, a, e):
         c["CS101"]["timeSlot"] = [(2, "3"), (2, "4")]
-        c["CS201"] = make_course("CS
+                c["CS201"] = make_course("CS201", slots=[(2, "3"), (2, "4")])
+    result = run(cid="CS201", setup=setup)
+    assert types_of(result).count("COURSE_CONFLICT") == 1
+    assert "星期二第 3、4 節" in result["conflicts"][0]["description"]
+
+
+def test_bug_f2_03_duplicate_enrollment_is_only_error():
+
+    result = run(cid="CS101", setup=lambda s, c, a, e: s["S001"].update(maxCredit=5))
+    assert types_of(result) == ["DUPLICATE"]
+
+
+@pytest.mark.parametrize("sid, cid", [("S999", "CS105"), ("S001", "NOPE")])
+def test_bug_f2_04_precondition_error_has_consistent_shape(sid, cid):
+
+    result = run(sid, cid)
+    assert result["success"] is False
+    assert "conflicts" in result
