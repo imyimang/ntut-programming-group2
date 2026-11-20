@@ -1,18 +1,17 @@
 # f2_checker.py
+from config import (
+    ACTIVITY_OVERLAP,
+    CLASSROOM_OVERLAP,
+    COURSE_FULL,
+    CREDIT_LIMIT,
+    DAYS,
+    DAY_NAMES,
+    PERIODS,
+    RESULT_FAIL,
+    RESULT_SUCCESS,
+    STUDENT_OVERLAP,
+)
 from f1_manager import get_remaining_seats
-from f3_schedule import PERIODS
-
-DAYS = [1, 2, 3, 4, 5, 6, 7]
-DAY_NAMES = {1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "日"}
-
-STUDENT_OVERLAP = "STUDENT_OVERLAP"
-CLASSROOM_OVERLAP = "CLASSROOM_OVERLAP"
-ACTIVITY_OVERLAP = "ACTIVITY_OVERLAP"
-CREDIT_LIMIT = "CREDIT_LIMIT"
-COURSE_FULL = "COURSE_FULL"
-
-RESULT_SUCCESS = "成功"
-RESULT_FAIL = "失敗"
 
 
 def get_slot_sort_key(slot: tuple) -> tuple:

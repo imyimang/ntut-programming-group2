@@ -1,9 +1,4 @@
-DAYS = [1, 2, 3, 4, 5, 6, 7]
-PERIODS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"]
-DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-CONFLICT_SEPARATOR = " / "
-CELL_WIDTH = 10
+from config import CELL_WIDTH, CONFLICT_SEPARATOR, DAYS, DAY_NAMES_EN, PERIODS
 
 
 def day_to_row(day: int) -> int:
@@ -283,7 +278,7 @@ def render_cli_schedule(matrix: list[list[str | None]]) -> str:
 
     border = "+" + "+".join(["-" * (CELL_WIDTH + 2)] * 8) + "+"
 
-    lines = [border, make_table_line(["Period"] + DAY_NAMES), border]
+    lines = [border, make_table_line(["Period"] + DAY_NAMES_EN), border]
     for column in range(12):
         cells = [PERIODS[column]]
         for row in range(7):

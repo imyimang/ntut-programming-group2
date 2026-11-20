@@ -3,23 +3,17 @@ import csv
 import os
 from datetime import date as _date
 
-from f2_checker import DAYS, PERIODS, get_slot_sort_key, parse_time_slots
-
-COURSE_HEADER = ["id", "name", "credit", "isRequired", "teacherName",
-                 "maxStudentCount", "classroom", "timeSlot"]
-STUDENT_HEADER = ["id", "name", "majorYear", "maxCredit"]
-CLASSROOM_HEADER = ["name", "roomCapacity", "timeSlot", "type", "devices"]
-ACTIVITY_HEADER = ["id", "name", "date", "timeSlot", "studentCount", "type",
-                   "requireList", "classroom", "participants", "isCancelled"]
-ENROLLMENT_HEADER = ["studentId", "courseId", "status"]
-
-FILE_HEADERS = {
-    "courses.csv": COURSE_HEADER,
-    "students.csv": STUDENT_HEADER,
-    "classrooms.csv": CLASSROOM_HEADER,
-    "activities.csv": ACTIVITY_HEADER,
-    "enrollments.csv": ENROLLMENT_HEADER,
-}
+from config import (
+    ACTIVITY_HEADER,
+    CLASSROOM_HEADER,
+    COURSE_HEADER,
+    DAYS,
+    ENROLLMENT_HEADER,
+    FILE_HEADERS,
+    PERIODS,
+    STUDENT_HEADER,
+)
+from f2_checker import get_slot_sort_key, parse_time_slots
 
 
 def _error(filename: str, line: int, reason: str) -> dict:

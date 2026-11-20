@@ -1,6 +1,7 @@
 # f5_filter.py
+from config import DAY_NAMES
 from f1_manager import get_remaining_seats
-from f2_checker import DAY_NAMES, get_slot_sort_key, parse_time_slots
+from f2_checker import get_slot_sort_key, parse_time_slots
 
 
 def _slots(raw) -> set:

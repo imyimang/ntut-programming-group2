@@ -2,12 +2,8 @@
 import copy
 from datetime import date as _date
 
+from config import ACTIVITY_OVERLAP, DAYS, DAY_NAMES, PERIODS, STUDENT_OVERLAP
 from f2_checker import (
-    ACTIVITY_OVERLAP,
-    DAYS,
-    DAY_NAMES,
-    PERIODS,
-    STUDENT_OVERLAP,
     get_slot_sort_key,
     group_continuous_slots,
     parse_time_slots,

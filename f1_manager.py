@@ -1,6 +1,5 @@
 # Shared constants for Week & Periods across F1–F6
-DAYS = [1, 2, 3, 4, 5, 6, 7]
-PERIODS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c"]
+from config import DAYS, PERIODS
 
 
 def validate_credits(credit):

@@ -1,6 +1,7 @@
 # test_f2.py
 import copy
 import pytest
+from config import TIME_TYPES
 from f2_checker import (
     check_course_enrollment,
     find_intersections,
@@ -8,8 +9,6 @@ from f2_checker import (
     normalize_slots,
     parse_time_slots,
 )
-
-TIME_TYPES = {"STUDENT_OVERLAP", "CLASSROOM_OVERLAP", "ACTIVITY_OVERLAP"}
 
 
 def make_course(cid, name="測試課程", credit=3, cap=40, room="B201", slots=None):

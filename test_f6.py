@@ -4,12 +4,14 @@ import os
 
 import pytest
 
-from f6_storage import (
+from config import (
     ACTIVITY_HEADER,
     CLASSROOM_HEADER,
     COURSE_HEADER,
     ENROLLMENT_HEADER,
     STUDENT_HEADER,
+)
+from f6_storage import (
     load_all,
     parse_slot_text,
     save_all,
