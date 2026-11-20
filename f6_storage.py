@@ -142,7 +142,6 @@ def _load_courses(data_dir, errors, warnings):
             "maxStudentCount": max_students,
             "classroom": row[6].strip(),
             "timeSlot": slots,
-            "_line": line,
         }
     return db
 
@@ -171,7 +170,6 @@ def _load_students(data_dir, errors, warnings):
             "maxCredit": max_credit,
             "courses": [],
             "activities": [],
-            "_line": line,
         }
     return db
 
@@ -203,7 +201,6 @@ def _load_classrooms(data_dir, errors, warnings):
             "timeSlot": slots,
             "type": row[3].strip(),
             "devices": _split_list(row[4]),
-            "_line": line,
         }
     return db
 
@@ -258,7 +255,6 @@ def _load_activities(data_dir, errors, warnings):
             "classroom": classroom,
             "participants": participants,
             "isCancelled": is_cancelled,
-            "_line": line,
         }
     return db
 
@@ -282,7 +278,6 @@ def _load_enrollments(data_dir, errors, warnings):
             "student_id": student_id,
             "course_id": course_id,
             "status": status,
-            "_line": line,
         })
     return rows
 
@@ -420,10 +415,10 @@ def save_all(data_dir: str, classrooms_db: dict, courses_db: dict,
         room = classrooms_db[name]
         classroom_rows.append([
             room.get("name", name),
-            room.get("roomCapacity", room.get("capacity", 0)),
+            room.get("roomCapacity", 0),
             slots_to_text(room.get("timeSlot", [])),
             room.get("type", ""),
-            ";".join(room.get("devices", room.get("equipment", []))),
+            ";".join(room.get("devices", [])),
         ])
 
     activity_rows = []
@@ -479,7 +474,7 @@ def save_data(data_dir: str, data: dict) -> dict:
 def _json_ready(record: dict) -> dict:
     return {
         key: value for key, value in record.items()
-        if key not in ("_line", "invalid", "invalidReasons")
+        if key not in ("invalid", "invalidReasons")
     }
 
 
@@ -496,7 +491,7 @@ def save_json(data_dir: str, classrooms_db: dict, courses_db: dict,
         "activities": {k: _json_ready(v) for k, v in activities_db.items()},
         "enrollments": [
             {key: value for key, value in row.items()
-             if key not in ("_line", "invalid", "invalidReasons")}
+             if key not in ("invalid", "invalidReasons")}
             for row in enrollments
         ],
     }

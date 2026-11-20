@@ -118,35 +118,30 @@ def update_course(courses_db, enrollments, classrooms_db, course_id, **kwargs):
         if not ok_cr:
             errors.append(err_cr)
 
-    if "max_student_count" in kwargs:
-        new_max = kwargs["max_student_count"]
+    if "maxStudentCount" in kwargs:
+        new_max = kwargs["maxStudentCount"]
         ok_cap, err_cap = validate_capacity(new_max)
         if not ok_cap:
             errors.append(err_cap)
         elif new_max < get_active_count(enrollments, course_id):
-            errors.append({"field": "max_student_count", "input_value": new_max, "reason": "Capacity cannot be lower than current enrollment"})
+            errors.append({"field": "maxStudentCount", "input_value": new_max, "reason": "Capacity cannot be lower than current enrollment"})
 
     if "classroom" in kwargs and kwargs["classroom"] not in classrooms_db:
         errors.append({"field": "classroom", "input_value": kwargs["classroom"], "reason": "Classroom does not exist"})
 
-    if "time_slots" in kwargs:
-        ok_ts, err_ts = validate_time_slots(kwargs["time_slots"])
+    if "timeSlot" in kwargs:
+        ok_ts, err_ts = validate_time_slots(kwargs["timeSlot"])
         if not ok_ts:
             errors.extend(err_ts)
 
     if errors:
         return courses_db, False, errors
 
-    if "name" in kwargs:
-        c["name"] = kwargs["name"]
-    if "credit" in kwargs:
-        c["credit"] = kwargs["credit"]
-    if "max_student_count" in kwargs:
-        c["maxStudentCount"] = kwargs["max_student_count"]
-    if "classroom" in kwargs:
-        c["classroom"] = kwargs["classroom"]
-    if "time_slots" in kwargs:
-        c["timeSlot"] = [(s[0], str(s[1]).lower()) for s in kwargs["time_slots"]]
+    for key in ("name", "credit", "isRequired", "teacherName", "maxStudentCount", "classroom"):
+        if key in kwargs:
+            c[key] = bool(kwargs[key]) if key == "isRequired" else kwargs[key]
+    if "timeSlot" in kwargs:
+        c["timeSlot"] = [(s[0], str(s[1]).lower()) for s in kwargs["timeSlot"]]
 
     return courses_db, True, "Course updated successfully"
 
@@ -186,21 +181,24 @@ def add_student(students_db, s_id, name, major_year, max_credit=25):
 def update_student(students_db, s_id, **kwargs):
     if s_id not in students_db:
         return students_db, False, [{"field": "student_id", "input_value": s_id, "reason": "Student not found"}]
-    if "max_credit" in kwargs:
-        ok_mc, err_mc = validate_max_credits(kwargs["max_credit"])
+    if "maxCredit" in kwargs:
+        ok_mc, err_mc = validate_max_credits(kwargs["maxCredit"])
         if not ok_mc:
             return students_db, False, [err_mc]
     students_db[s_id].update(kwargs)
     return students_db, True, "Student updated successfully"
 
 
-def delete_student(students_db, enrollments, s_id):
+def delete_student(students_db, enrollments, s_id, activities_db=None):
     if s_id not in students_db:
         return students_db, enrollments, False, [{"field": "student_id", "input_value": s_id, "reason": "Student not found"}]
     del students_db[s_id]
     for e in enrollments:
         if e.get("student_id") == s_id and e.get("status") == "ENROLLED":
             e["status"] = "DROPPED"
+    for activity in (activities_db or {}).values():
+        if isinstance(activity, dict) and s_id in activity.get("participants", []):
+            activity["participants"].remove(s_id)
     return students_db, enrollments, True, "Student deleted and active enrollments dropped"
 
 
@@ -238,11 +236,11 @@ def drop_course(enrollments, s_id, c_id, students_db=None):
 def generate_sample_data():
     """產生符合驗收標準之測試資料：至少 5 間教室、20 門課程、15 名學生"""
     classrooms_db = {
-        "R101": {"id": "R101", "capacity": 60, "equipment": ["Projector", "PC"]},
-        "R102": {"id": "R102", "capacity": 50, "equipment": ["Projector"]},
-        "R201": {"id": "R201", "capacity": 40, "equipment": ["Whiteboard"]},
-        "R202": {"id": "R202", "capacity": 45, "equipment": ["Projector", "Lab"]},
-        "R301": {"id": "R301", "capacity": 80, "equipment": ["Projector", "Mic"]},
+        "R101": {"name": "R101", "roomCapacity": 60, "timeSlot": [], "type": "", "devices": ["Projector", "PC"]},
+        "R102": {"name": "R102", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": ["Projector"]},
+        "R201": {"name": "R201", "roomCapacity": 40, "timeSlot": [], "type": "", "devices": ["Whiteboard"]},
+        "R202": {"name": "R202", "roomCapacity": 45, "timeSlot": [], "type": "", "devices": ["Projector", "Lab"]},
+        "R301": {"name": "R301", "roomCapacity": 80, "timeSlot": [], "type": "", "devices": ["Projector", "Mic"]},
     }
 
     courses_db = {}

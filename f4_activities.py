@@ -41,11 +41,11 @@ def _weekday_from_date(date_text) -> int | None:
 
 
 def _classroom_capacity(room: dict) -> int:
-    return room.get("roomCapacity", room.get("capacity", 0)) or 0
+    return room.get("roomCapacity", 0) or 0
 
 
 def _classroom_devices(room: dict) -> set:
-    return set(_as_list(room.get("devices", room.get("equipment", []))))
+    return set(_as_list(room.get("devices", [])))
 
 
 def _classroom_type(room: dict) -> str:
@@ -135,7 +135,7 @@ def _validate_activity_input(activity: dict, activities_db: dict,
     if weekday is None:
         errors.append({"field": "date", "input_value": date_text, "reason": "日期格式必須為 YYYY-MM-DD"})
 
-    slots, slot_errors = _parse_slots_field(activity.get("timeSlot", activity.get("time_slot")), activity_id)
+    slots, slot_errors = _parse_slots_field(activity.get("timeSlot"), activity_id)
     errors.extend(slot_errors)
     slots = _normalize_slots(slots)
     if not slots and not slot_errors:
@@ -208,7 +208,7 @@ def _map_modified_type(modified_type) -> str | None:
     mapping = {
         "name": "name", "名稱": "name",
         "date": "date", "日期": "date",
-        "timeSlot": "timeSlot", "time_slot": "timeSlot", "時段": "timeSlot",
+        "timeSlot": "timeSlot", "時段": "timeSlot",
         "studentCount": "studentCount", "預計人數": "studentCount",
         "type": "type", "活動類型": "type",
         "requireList": "requireList", "場地需求": "requireList",

@@ -21,8 +21,8 @@ def make_course(cid, name="測試課程", credit=3, cap=40, room="B201", slots=N
 
 def make_f2_world():
     classrooms_db = {
-        "A101": {"capacity": 50},
-        "A102": {"capacity": 50},
+        "A101": {"name": "A101", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": []},
+        "A102": {"name": "A102", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": []},
     }
 
     courses_db = {
@@ -55,12 +55,12 @@ def make_f2_world():
 
     students_db = {
         "S001": {
-            "id": "S001", "name": "小明", "department": "資工一",
-            "maxCredit": 18, "activities": ["ACT01"],
+            "id": "S001", "name": "小明", "majorYear": "資工一",
+            "maxCredit": 18, "courses": ["CS101"], "activities": ["ACT01"],
         },
         "S002": {
-            "id": "S002", "name": "小華", "department": "資工二",
-            "maxCredit": 18, "activities": [],
+            "id": "S002", "name": "小華", "majorYear": "資工二",
+            "maxCredit": 18, "courses": ["CS103"], "activities": [],
         },
     }
 

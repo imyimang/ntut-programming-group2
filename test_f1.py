@@ -8,7 +8,10 @@ from f1_manager import (add_course, update_course, delete_course,
 # ==================== 工具函式 ====================
 
 def make_rooms():
-    return {"A101": {"capacity": 50}, "A102": {"capacity": 50}}
+    return {
+        "A101": {"name": "A101", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": []},
+        "A102": {"name": "A102", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": []},
+    }
 
 
 def make_args(**changes):
@@ -153,13 +156,13 @@ def test_update_course_capacity_success():
     courses = {}
     rooms = make_rooms()
     try_add(courses, rooms)
-    _, ok, result = update_course(courses, [], rooms, "CS101", max_student_count=50)
+    _, ok, result = update_course(courses, [], rooms, "CS101", maxStudentCount=50)
     assert ok is True
     assert courses["CS101"]["maxStudentCount"] == 50
 
 
 def test_update_nonexistent_course_rejected():
-    _, ok, result = update_course({}, [], make_rooms(), "XX999", max_student_count=50)
+    _, ok, result = update_course({}, [], make_rooms(), "XX999", maxStudentCount=50)
     assert ok is False
 
 
@@ -168,7 +171,7 @@ def test_update_capacity_below_enrolled_rejected():
     rooms, courses, students, enrollments = make_world(max_students=2)
     enroll_course(enrollments, courses, students, "S001", "CS101")
     enroll_course(enrollments, courses, students, "S002", "CS101")
-    _, ok, result = update_course(courses, enrollments, rooms, "CS101", max_student_count=1)
+    _, ok, result = update_course(courses, enrollments, rooms, "CS101", maxStudentCount=1)
     assert ok is False
     assert courses["CS101"]["maxStudentCount"] == 2
 
@@ -184,7 +187,7 @@ def test_update_nonexistent_room_rejected():
 
 @pytest.mark.parametrize("change, key, original", [
     ({"credit": 0}, "credit", 3),
-    ({"max_student_count": 0}, "maxStudentCount", 40),
+    ({"maxStudentCount": 0}, "maxStudentCount", 40),
 ])
 def test_update_course_invalid_value_rejected(change, key, original):
     """D010：修改也要套用新增的驗證規則（預期失敗）"""
@@ -289,7 +292,10 @@ def test_delete_student_drops_enrollments():
 # ==================== 驗收資料：20 課、15 生、5 教室 ====================
 
 def test_acceptance_20_courses_15_students_5_rooms():
-    rooms = {f"R{i}": {"capacity": 50} for i in range(1, 6)}
+    rooms = {
+        f"R{i}": {"name": f"R{i}", "roomCapacity": 50, "timeSlot": [], "type": "", "devices": []}
+        for i in range(1, 6)
+    }
     courses, students = {}, {}
     for i in range(1, 21):
         ok, result = try_add(courses, rooms, course_id=f"CS{100 + i}",
