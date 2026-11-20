@@ -72,8 +72,6 @@ def get_room_occupied_slots(room_name: str, courses_db: dict = None,
     for aid, activity in (activities_db or {}).items():
         if aid == exclude_activity_id or not isinstance(activity, dict):
             continue
-        if activity.get("isCancelled"):
-            continue
         if activity.get("classroom") == room_name:
             occupied.update(parse_time_slots(activity.get("timeSlot", [])))
     return occupied
@@ -189,7 +187,6 @@ def _validate_activity_input(activity: dict, activities_db: dict,
         "requireList": require_list,
         "classroom": classroom,
         "participants": [],
-        "isCancelled": False,
     }
     return record, errors
 
@@ -224,8 +221,6 @@ def update_activity(activities_db: dict, activity_id: str,
         return activities_db, False, [{"field": "id", "input_value": activity_id, "reason": "活動不存在"}]
 
     activity = activities_db[activity_id]
-    if activity.get("isCancelled"):
-        return activities_db, False, [{"field": "id", "input_value": activity_id, "reason": "已取消的活動不可修改"}]
 
     field = _map_modified_type(modified_type)
     if field is None:
@@ -257,7 +252,6 @@ def update_activity(activities_db: dict, activity_id: str,
     if errors:
         return activities_db, False, errors
     refreshed["participants"] = activity.get("participants", [])
-    refreshed["isCancelled"] = activity.get("isCancelled", False)
 
     activities_db[activity_id].clear()
     activities_db[activity_id].update(refreshed)
@@ -268,13 +262,7 @@ def cancel_activity(activities_db: dict, students_db: dict, activity_id: str):
     if activity_id not in activities_db:
         return activities_db, False, [{"field": "id", "input_value": activity_id, "reason": "活動不存在"}]
 
-    activity = activities_db[activity_id]
-    if activity.get("isCancelled"):
-        return activities_db, False, [{"field": "id", "input_value": activity_id, "reason": "活動已取消"}]
-
-    activity["isCancelled"] = True
-    activity["classroom"] = ""
-    activity["participants"] = []
+    del activities_db[activity_id]
     for student in (students_db or {}).values():
         activities = student.get("activities", [])
         if activity_id in activities:
@@ -287,12 +275,10 @@ def get_activity(activities_db: dict, activity_id: str):
 
 
 def query_activities(activities_db: dict, activity_type: str = None,
-                     date_text: str = None, include_cancelled: bool = False) -> list:
+                     date_text: str = None) -> list:
     result = []
     for activity in activities_db.values():
         if not isinstance(activity, dict):
-            continue
-        if activity.get("isCancelled") and not include_cancelled:
             continue
         if activity_type is not None and activity.get("type") != activity_type:
             continue
@@ -378,8 +364,6 @@ def enroll_activity(activity_id: str, student_id: str, activities_db: dict,
 
     if not isinstance(activity, dict):
         errors.append({"errorType": "ACTIVITY_NOT_FOUND", "target": activity_id, "description": "活動不存在"})
-    elif activity.get("isCancelled"):
-        errors.append({"errorType": "ACTIVITY_CANCELLED", "target": activity_id, "description": "活動已取消"})
     if not isinstance(student, dict):
         errors.append({"errorType": "STUDENT_NOT_FOUND", "target": student_id, "description": "學生不存在"})
 
@@ -430,7 +414,7 @@ def enroll_activity(activity_id: str, student_id: str, activities_db: dict,
         if aid == activity_id:
             continue
         other = activities_db.get(aid)
-        if not isinstance(other, dict) or other.get("isCancelled"):
+        if not isinstance(other, dict):
             continue
         overlap = activity_slots & set(parse_time_slots(other.get("timeSlot", [])))
         conflicts.extend(_overlap_conflicts(

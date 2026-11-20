@@ -239,10 +239,6 @@ def _load_activities(data_dir, errors, warnings):
 
         classroom = row[7].strip() if len(row) >= 8 else ""
         participants = _split_list(row[8]) if len(row) >= 9 else []
-        is_cancelled = _to_bool_int(row[9] if len(row) >= 10 else "0")
-        if is_cancelled is None:
-            errors.append(_error("activities.csv", line, "Invalid isCancelled: " + row[9]))
-            continue
 
         db[aid] = {
             "id": aid,
@@ -254,7 +250,6 @@ def _load_activities(data_dir, errors, warnings):
             "requireList": _split_list(row[6]),
             "classroom": classroom,
             "participants": participants,
-            "isCancelled": is_cancelled,
         }
     return db
 
@@ -339,8 +334,6 @@ def _rebuild_student_links(students_db, activities_db, enrollments) -> None:
             student["courses"].append(enrollment["course_id"])
 
     for activity in activities_db.values():
-        if activity.get("isCancelled"):
-            continue
         for sid in activity.get("participants", []):
             student = students_db.get(sid)
             if student is not None and activity["id"] not in student["activities"]:
@@ -434,7 +427,6 @@ def save_all(data_dir: str, classrooms_db: dict, courses_db: dict,
             ";".join(activity.get("requireList", [])),
             activity.get("classroom", ""),
             ";".join(activity.get("participants", [])),
-            1 if activity.get("isCancelled") else 0,
         ])
 
     enrollment_rows = []

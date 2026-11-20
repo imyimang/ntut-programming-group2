@@ -79,8 +79,6 @@ def build_schedule_matrix(student_id: str, students_db: dict,
         if activity_id not in activities_db:
             raise ValueError("Activity not found: " + repr(activity_id))
         activity = activities_db[activity_id]
-        if activity.get("isCancelled"):
-            continue
         place_item(matrix, activity_id, activity,
                    activity.get("timeSlot", []))
 

@@ -298,8 +298,6 @@ def check_course_enrollment(student_id: str,
                 "description": "已報名活動不存在，已跳過該筆",
             })
             continue
-        if activity.get("isCancelled"):
-            continue
         overlap = sorted(target_slot_set & set(slots_for("activity", act_id, activity.get("timeSlot", []))),
                          key=get_slot_sort_key)
         conflicts.extend(_build_time_conflicts(
@@ -321,7 +319,7 @@ def check_course_enrollment(student_id: str,
 
         if isinstance(activities_db, dict):
             for act_id, activity in activities_db.items():
-                if not isinstance(activity, dict) or activity.get("isCancelled"):
+                if not isinstance(activity, dict):
                     continue
                 if activity.get("classroom") != target_room:
                     continue

@@ -99,10 +99,10 @@ def test_f4_cancel_activity_releases_room_and_participants():
 
     activities, ok, _ = cancel_activity(activities, students, "ACT01")
     assert ok is True
-    assert activities["ACT01"]["isCancelled"] is True
-    assert activities["ACT01"]["classroom"] == ""
-    assert activities["ACT01"]["participants"] == []
+    assert "ACT01" not in activities
     assert students["S002"]["activities"] == []
+    res = find_suitable_classrooms(20, [(2, "3")], "lecture", ["projector"], classrooms, courses, activities)
+    assert "R103" in res["suitableClassrooms"]
 
 
 def test_f4_query_activities_filter():
@@ -287,7 +287,7 @@ def test_f4_enroll_cancelled_activity_rejected():
     cancel_activity(activities, students, "ACT01")
     result = enroll_activity("ACT01", "S002", activities, students, courses)
     assert result["success"] is False
-    assert result["errors"][0]["errorType"] == "ACTIVITY_CANCELLED"
+    assert result["errors"][0]["errorType"] == "ACTIVITY_NOT_FOUND"
 
 
 def test_f4_update_cancelled_activity_rejected():
@@ -296,7 +296,7 @@ def test_f4_update_cancelled_activity_rejected():
     cancel_activity(activities, students, "ACT01")
     _, ok, errors = update_activity(activities, "ACT01", "name", "x", classrooms, courses)
     assert ok is False
-    assert "已取消" in errors[0]["reason"]
+    assert "不存在" in errors[0]["reason"]
 
 
 def test_f4_no_suitable_classroom_lists_all_reasons():

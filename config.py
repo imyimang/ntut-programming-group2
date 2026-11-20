@@ -31,7 +31,7 @@ STUDENT_HEADER = ["id", "name", "majorYear", "maxCredit"]
 CLASSROOM_HEADER = ["name", "roomCapacity", "timeSlot", "type", "devices"]
 ACTIVITY_HEADER = [
     "id", "name", "date", "timeSlot", "studentCount", "type",
-    "requireList", "classroom", "participants", "isCancelled",
+    "requireList", "classroom", "participants",
 ]
 ENROLLMENT_HEADER = ["studentId", "courseId", "status"]
 

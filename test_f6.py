@@ -47,7 +47,7 @@ def sample_data():
             "id": "ACT01", "name": "程式設計讀書會", "date": "2026-06-29",
             "timeSlot": [(1, "2")], "studentCount": 20, "type": "lecture",
             "requireList": ["projector"], "classroom": "R101",
-            "participants": ["S001"], "isCancelled": False,
+            "participants": ["S001"],
         },
     }
     enrollments = [
@@ -196,17 +196,6 @@ def test_f6_first_and_last_period_slots(tmp_path):
     assert loaded["courses"]["CS101"]["timeSlot"] == [(1, "1"), (7, "c")]
 
 
-def test_f6_cancelled_activity_round_trip(tmp_path):
-    classrooms, courses, students, activities, enrollments = sample_data()
-    activities["ACT01"]["isCancelled"] = True
-    activities["ACT01"]["classroom"] = ""
-    activities["ACT01"]["participants"] = []
-    save_all(tmp_path, classrooms, courses, students, activities, enrollments)
-    loaded = load_all(tmp_path)
-    assert loaded["activities"]["ACT01"]["isCancelled"] is True
-    assert loaded["students"]["S001"]["activities"] == []
-
-
 def test_f6_utf8_bom_header_accepted(tmp_path):
     path = os.path.join(tmp_path, "enrollments.csv")
     with open(path, "w", newline="", encoding="utf-8") as handle:
@@ -325,7 +314,7 @@ def test_f6_invalid_enrollment_status_skipped(tmp_path):
 
 def test_f6_invalid_activity_date_skipped(tmp_path):
     write_only(tmp_path, "activities.csv", ACTIVITY_HEADER, [
-        ["ACT01", "A", "not-a-date", "12", "10", "lecture", "", "", "", "0"],
+        ["ACT01", "A", "not-a-date", "12", "10", "lecture", "", "", ""],
     ])
     loaded = load_all(tmp_path)
     assert loaded["activities"] == {}
@@ -334,20 +323,11 @@ def test_f6_invalid_activity_date_skipped(tmp_path):
 
 def test_f6_activity_weekday_mismatch_skipped(tmp_path):
     write_only(tmp_path, "activities.csv", ACTIVITY_HEADER, [
-        ["ACT01", "A", "2026-06-29", "21", "10", "lecture", "", "", "", "0"],
+        ["ACT01", "A", "2026-06-29", "21", "10", "lecture", "", "", ""],
     ])
     loaded = load_all(tmp_path)
     assert loaded["activities"] == {}
     assert any("weekday does not match" in e["reason"] for e in loaded["errors"])
-
-
-def test_f6_invalid_cancelled_flag_skipped(tmp_path):
-    write_only(tmp_path, "activities.csv", ACTIVITY_HEADER, [
-        ["ACT01", "A", "2026-06-29", "12", "10", "lecture", "", "", "", "maybe"],
-    ])
-    loaded = load_all(tmp_path)
-    assert loaded["activities"] == {}
-    assert any("Invalid isCancelled" in e["reason"] for e in loaded["errors"])
 
 
 def test_f6_header_mismatch_reported(tmp_path):
@@ -381,7 +361,7 @@ def test_f6_course_unknown_classroom_marked_invalid(tmp_path):
 
 def test_f6_activity_unknown_classroom_and_student_marked(tmp_path):
     write_only(tmp_path, "activities.csv", ACTIVITY_HEADER, [
-        ["ACT01", "A", "2026-06-29", "12", "10", "lecture", "", "R999", "S999", "0"],
+        ["ACT01", "A", "2026-06-29", "12", "10", "lecture", "", "R999", "S999"],
     ])
     loaded = load_all(tmp_path)
     types = [issue["type"] for issue in loaded["issues"]]
